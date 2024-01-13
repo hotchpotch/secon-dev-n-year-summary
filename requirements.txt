@@ -1,6 +1,5 @@
 langchain>=0.1.0
 beautifulsoup4
 requests
-jinja2
 openai
 langchain-openai

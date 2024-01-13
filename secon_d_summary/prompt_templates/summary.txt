@@ -1,0 +1,10 @@
+# Instructions
+
+- The following contents contain the diary of the same day each year.
+- Please summarize those contents in a clear and concise way what happened each year.
+- The reader is the person who wrote the diary. Carefully look back into the past and tell us what happened to you in writing.
+- The output must be in Japanese.
+
+# contents
+
+{diary}

@@ -1,5 +1,6 @@
 from operator import itemgetter
 
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import (
     ConfigurableField,
     RunnableLambda,
@@ -7,8 +8,12 @@ from langchain_core.runnables import (
     RunnablePassthrough,
 )
 from langchain_core.runnables import chain as chain_decorator
+from langchain_openai import ChatOpenAI
+
+from secon_d_summary.fake import FakeChatModel
 
 from .diary_retriever import Diary, diary_retriever
+from .prompts import load_prompt
 
 
 @chain_decorator
@@ -27,8 +32,21 @@ def _do_nothing(_):
     return None
 
 
+@chain_decorator
+def _diaries_formatter(diaries: list[Diary]) -> dict[str, str]:
+    results = []
+    for diary in diaries:
+        title = diary["title"][0:200]
+        text = diary["text"][0:1500]
+        results.append(f"## {title}\n{text}\n")
+    return {"diary": " \n".join(results)}
+
+
 def build_chain():
     retriever = RunnableLambda(diary_retriever)
+    # model = ChatOpenAI(model="gpt-4-1106-preview")
+    model = FakeChatModel()
+    prompt = load_prompt("summary.txt")
 
     def _assine_n_diaries(x):
         return RunnablePassthrough.assign(
@@ -37,5 +55,14 @@ def build_chain():
             | retriever.with_fallbacks([_do_nothing]).map(),
         )
 
-    chain = retriever | _assine_n_diaries | _combine_diaries | _filter_none
+    chain = (
+        retriever
+        | _assine_n_diaries
+        | _combine_diaries
+        | _filter_none
+        | {
+            "images": (lambda x: [d["image"] for d in x if d["image"]]),
+            "summary": _diaries_formatter | prompt | model | StrOutputParser(),
+        }
+    )
     return chain

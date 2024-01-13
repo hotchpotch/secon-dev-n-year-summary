@@ -44,7 +44,7 @@ def _diaries_formatter(diaries: list[Diary]) -> dict[str, str]:
 
 def build_chain():
     retriever = RunnableLambda(diary_retriever)
-    # model = ChatOpenAI(model="gpt-4-1106-preview")
+    model = ChatOpenAI(model="gpt-4-1106-preview")
     model = FakeChatModel()
     prompt = load_prompt("summary.txt")
 
@@ -61,7 +61,7 @@ def build_chain():
         | _combine_diaries
         | _filter_none
         | {
-            "images": (lambda x: [d["image"] for d in x if d["image"]]),
+            "diaries": RunnablePassthrough(),
             "summary": _diaries_formatter | prompt | model | StrOutputParser(),
         }
     )

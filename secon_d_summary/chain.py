@@ -37,7 +37,7 @@ def _diaries_formatter(diaries: list[Diary]) -> dict[str, str]:
     results = []
     for diary in diaries:
         title = diary["title"][0:200]
-        text = diary["text"][0:1500]
+        text = diary["text"][0:2000]
         results.append(f"## {title}\n{text}\n")
     return {"diary": " \n".join(results)}
 
@@ -45,7 +45,7 @@ def _diaries_formatter(diaries: list[Diary]) -> dict[str, str]:
 def build_chain():
     retriever = RunnableLambda(diary_retriever)
     model = ChatOpenAI(model="gpt-4-1106-preview")
-    model = FakeChatModel()
+    # model = FakeChatModel()
     prompt = load_prompt("summary.txt")
 
     def _assine_n_diaries(x):

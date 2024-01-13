@@ -48,7 +48,7 @@ def build_chain():
     # model = FakeChatModel()
     prompt = load_prompt("summary.txt")
 
-    def _assine_n_diaries(x):
+    def _assign_n_diaries(x):
         return RunnablePassthrough.assign(
             diary=RunnablePassthrough(),
             n_diaries=itemgetter("n_diary_urls")
@@ -57,7 +57,7 @@ def build_chain():
 
     chain = (
         retriever
-        | _assine_n_diaries
+        | _assign_n_diaries
         | _combine_diaries
         | _filter_none
         | {

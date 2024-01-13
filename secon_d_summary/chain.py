@@ -23,7 +23,7 @@ def _combine_diaries(x):
 
 
 @chain_decorator
-def _do_nothing(x):
+def _do_nothing(_):
     return None
 
 

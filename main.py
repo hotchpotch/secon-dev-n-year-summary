@@ -2,28 +2,9 @@ import argparse
 import os
 from datetime import datetime
 
-import requests
-
 from secon_d_summary.chain import build_chain
 from secon_d_summary.diary_retriever import Diary
-
-
-def post_discord(webhook_url: str, summary: str, diaries: list[Diary], dt: datetime):
-    mmdd = dt.strftime("🗒️ %m月%d日の出来事")
-    summary_data = {"content": mmdd + "\r" + summary}
-    summary_res = requests.post(webhook_url, json=summary_data)
-    if summary_res.status_code == 204:
-        fields = []
-        for diary in diaries:
-            fields.append(
-                {
-                    "name": "",
-                    "value": f"[{diary['title']}]({diary['url']})",
-                    "inline": True,
-                }
-            )
-        data = {"embeds": [{"fields": fields}]}
-        res = requests.post(webhook_url, json=data)
+from secon_d_summary.post_discord import post_discord
 
 
 def args_to_dt(args: argparse.Namespace) -> datetime:
@@ -52,6 +33,8 @@ if __name__ == "__main__":
     result = chain.invoke(url)
     diaries: list[Diary] = result["diaries"]
     summary: str = result["summary"]
+    print("summary:", summary)
+    print("diaries:", [diary["url"] for diary in diaries])
 
     webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
 
